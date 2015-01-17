@@ -1,12 +1,12 @@
-NSInputStream for ALAsset
+NSInputStream for NSFileHandle, ALAsset. (also any other kind of data source)
 =========================
 
-POSInputStreamLibrary contains `NSInputStream` implementation which uses `ALAsset`
-as its data source. The main features of `POSBlobInputStream` are the following:
+POSInputStreamLibraryExtension contains `NSInputStream` implementation which uses `NSFileHandle`and `ALAsset`
+as its data source. The main features of `POSInputStreamLibraryExtension` are the following:
 
 - Synchronous and asynchronous working modes.
-- Autorefresh after `ALAsset` invalidation.
-- Smart caching of `ALAsset` while reading its data.
+- Autorefresh after object invalidation.
+- Smart caching of file while reading its data.
 - Using `NSStreamFileCurrentOffsetKey` property for read offset specification.
 
 The category for `NSInputStream` defines initializers for the most common cases:
@@ -16,11 +16,10 @@ The category for `NSInputStream` defines initializers for the most common cases:
 + (NSInputStream *)pos_inputStreamWithAssetURL:(NSURL *)assetURL;
 + (NSInputStream *)pos_inputStreamWithAssetURL:(NSURL *)assetURL asynchronous:(BOOL)asynchronous;
 + (NSInputStream *)pos_inputStreamForCFNetworkWithAssetURL:(NSURL *)assetURL;
++ (NSInputStream *)pos_inputStreamWithFilePath:(NSString*)filePath;
 @end
 ```
 
-All of them require `NSURL` of `ALAsset`. `POSBlobInputStream` will query
-ALAssetLibrary for `ALAsset` during the opening.
 
  
 ## Working modes
