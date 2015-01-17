@@ -1,48 +1,48 @@
 //
-//  POSInputStreamJPEGDataSource.m
+//  POSInputStreamFileDataSource.m
 //  POSInputStreamLibrary
 //
 //  Created by Vlad Mihaylenko on 24/07/14.
 //  Copyright (c) 2014 Vlad Mihaylenko. All rights reserved.
 //
 
-#import "POSInputStreamJPEGDataSource.h"
+#import "POSInputStreamFileDataSource.h"
 #import "POSLocking.h"
 
-NSString * const POSBlobInputStreamJPEGDataSourceErrorDomain = @"com.github.pavelosipov.POSBlobInputStreamAssetDataSource";
+NSString * const POSBlobInputStreamFileDataSourceErrorDomain = @"com.github.pavelosipov.POSBlobInputStreamFileDataSource";
 
-static uint64_t const kJPEGCacheBufferSize = 131072;
+static uint64_t const kFileCacheBufferSize = 131072;
 
 typedef NS_ENUM(NSInteger, UpdateCacheMode) {
     UpdateCacheModeReopenWhenError,
     UpdateCacheModeFailWhenError
 };
 
-#pragma mark - NSError (POSBlobInputStreamAssetDataSource)
+#pragma mark - NSError (POSBlobInputStreamFileDataSource)
 
-@interface NSError (POSBlobInputStreamJPEGDataSource)
-+ (NSError *)pos_jpegOpenError;
+@interface NSError (POSBlobInputStreamFileDataSource)
++ (NSError *)pos_fileOpenError;
 @end
 
-@implementation NSError (POSBlobInputStreamJPEGDataSource)
+@implementation NSError (POSBlobInputStreamFileDataSource)
 
-+ (NSError *)pos_jpegOpenError {
-    NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : @"Failed to open ALAsset stream." };
++ (NSError *)pos_fileOpenError {
+    NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : @"Failed to open File stream." };
     return [NSError errorWithDomain:POSBlobInputStreamAssetDataSourceErrorDomain
                                code:POSBlobInputStreamAssetDataSourceErrorCodeOpen
                            userInfo:userInfo];
 }
 
-+ (NSError *)pos_jpegReadErrorWithPath:(NSString *)filePath reason:(NSError *)reason {
-    NSString *description = [NSString stringWithFormat:@"Failed to read asset with URL %@", filePath];
++ (NSError *)pos_fileReadErrorWithPath:(NSString *)filePath reason:(NSError *)reason {
+    NSString *description = [NSString stringWithFormat:@"Failed to read File with path %@", filePath];
     if (reason) {
         return [NSError errorWithDomain:POSBlobInputStreamAssetDataSourceErrorDomain
                                    code:POSBlobInputStreamAssetDataSourceErrorCodeRead
-                               userInfo:@{ NSLocalizedDescriptionKey: description, NSUnderlyingErrorKey: reason }];
+                               userInfo:@{ NSLocalizedDescriptionKey:description, NSUnderlyingErrorKey:reason }];
     } else {
         return [NSError errorWithDomain:POSBlobInputStreamAssetDataSourceErrorDomain
                                    code:POSBlobInputStreamAssetDataSourceErrorCodeRead
-                               userInfo:@{ NSLocalizedDescriptionKey: description }];
+                               userInfo:@{ NSLocalizedDescriptionKey:description }];
     }
 }
 
@@ -50,41 +50,39 @@ typedef NS_ENUM(NSInteger, UpdateCacheMode) {
 
 #pragma mark - POSBlobInputStreamAssetDataSource
 
-@interface POSInputStreamJPEGDataSource ()
+@interface POSInputStreamFileDataSource ()
 @property (nonatomic, readwrite) NSError *error;
 @end
 
-@implementation POSInputStreamJPEGDataSource {
+@implementation POSInputStreamFileDataSource {
     NSString *_filePath;
     NSFileHandle *_file;
     off_t _fileSize;
     off_t _readOffset;
-    uint8_t _fileCache[kJPEGCacheBufferSize];
+    uint8_t _fileCache[kFileCacheBufferSize];
     off_t _fileCacheSize;
     off_t _fileCacheOffset;
     off_t _fileCacheInternalOffset;
+    BOOL _isOpenComplited;
 }
 
 @dynamic openCompleted, hasBytesAvailable, atEnd;
 
-- (id)init {
-    @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                   reason:[NSString stringWithFormat:@"Unexpected deadly init invokation '%@', use %@ instead.",
-                                           NSStringFromSelector(_cmd),
-                                           NSStringFromSelector(@selector(initWithFilePath:))]
-                                 userInfo:nil];
-}
-
-- (id)initWithFilePath:(NSString *)filePath {
-    NSParameterAssert(filePath);
+- (instancetype)initWithFilePath:(NSString *)filePath {
+    NSAssert([[NSFileManager defaultManager] fileExistsAtPath:filePath], @"File dosen't exist");
     if (self = [super init]) {
         _openSynchronously = NO;
         _filePath = filePath;
         _fileCacheSize = 0;
         _fileCacheOffset = 0;
         _fileCacheInternalOffset = 0;
+        _isOpenComplited = YES;
     }
     return self;
+}
+
+- (BOOL)isOpenCompleted {
+    return _isOpenComplited;
 }
 
 - (void) dealloc {
@@ -93,14 +91,8 @@ typedef NS_ENUM(NSInteger, UpdateCacheMode) {
 
 #pragma mark - POSBlobInputStreamDataSource
 
-- (BOOL)isOpenCompleted {
-    return [[NSFileManager defaultManager] fileExistsAtPath:_filePath];
-}
-
 - (void)open {
-    if ([self isOpenCompleted]) {
-        [self p_open];
-    }
+    [self p_open];
 }
 
 - (BOOL)hasBytesAvailable {
@@ -130,9 +122,7 @@ typedef NS_ENUM(NSInteger, UpdateCacheMode) {
         return NO;
     }
     _readOffset = requestedOffest;
-    if ([self isOpenCompleted]) {
-        [self p_updateCacheInMode:UpdateCacheModeReopenWhenError];
-    }
+    [self p_updateCacheInMode:UpdateCacheModeReopenWhenError];
     return YES;
 }
 
@@ -170,39 +160,41 @@ typedef NS_ENUM(NSInteger, UpdateCacheMode) {
     id<Locking> lock = [self p_lockForOpening];
     [lock lock];
     dispatch_async(dispatch_get_main_queue(), ^{ @autoreleasepool {
-        NSDictionary *dict = [[NSFileManager defaultManager] attributesOfItemAtPath:_filePath error:nil];
-        NSFileHandle *file = [NSFileHandle fileHandleForReadingAtPath:_filePath];
-        if (dict) {
-            [self p_updateFile:file withAttributes:dict];
-            [self p_updateCacheInMode:UpdateCacheModeFailWhenError];
-        } else {
-            NSLog(@"Dictionary is empty");
-        }
+        [self p_updateFileAtPath:_filePath];
+        [self p_updateCacheInMode:UpdateCacheModeFailWhenError];
         [lock unlock];
     }});
     [lock waitWithTimeout:DISPATCH_TIME_FOREVER];
 }
 
-- (void) p_updateFile:(NSFileHandle*) file withAttributes:(NSDictionary*) attributes {
-    const BOOL shouldEmitOpenCompletedEvent = [self isOpenCompleted];
-    if (shouldEmitOpenCompletedEvent)
-        [self willChangeValueForKey:POSBlobInputStreamDataSourceOpenCompletedKeyPath];
+
+- (void)p_updateFileAtPath:(NSString*)filePath {
+    NSDictionary *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil];
+    NSAssert(attributes, @"Attributes of file cannot be empty!");
+    NSFileHandle *file = [NSFileHandle fileHandleForReadingAtPath:filePath];
+    [self willChangeValueForKey:POSBlobInputStreamDataSourceOpenCompletedKeyPath];
     _file = file;
     _fileSize = [attributes[NSFileSize] longLongValue];
-    if (shouldEmitOpenCompletedEvent)
-        [self didChangeValueForKey:POSBlobInputStreamDataSourceOpenCompletedKeyPath];
+    [self didChangeValueForKey:POSBlobInputStreamDataSourceOpenCompletedKeyPath];
+}
+
+- (void)p_updateFile:(NSFileHandle*)file withAttributes:(NSDictionary*)attributes {
+    [self willChangeValueForKey:POSBlobInputStreamDataSourceOpenCompletedKeyPath];
+    _file = file;
+    _fileSize = [attributes[NSFileSize] longLongValue];
+    [self didChangeValueForKey:POSBlobInputStreamDataSourceOpenCompletedKeyPath];
 }
 
 
 
-- (void) p_updateCacheInMode:(UpdateCacheMode)mode {
+- (void)p_updateCacheInMode:(UpdateCacheMode)mode {
     NSError *readError = nil;
     [_file seekToFileOffset:_readOffset];
-    NSData *dataBuffer = [_file readDataOfLength:kJPEGCacheBufferSize];
-    memcpy(_fileCache, [dataBuffer bytes], [dataBuffer length]);
+    NSData *dataBuffer = [_file readDataOfLength:kFileCacheBufferSize];
+    memcpy(_fileCache, dataBuffer.bytes, dataBuffer.length);
     if ([dataBuffer length] > 0) {
         [self willChangeValueForKey:POSBlobInputStreamDataSourceHasBytesAvailableKeyPath];
-        _fileCacheSize = [dataBuffer length];
+        _fileCacheSize = dataBuffer.length;
         _fileCacheOffset = _readOffset;
         _fileCacheInternalOffset = 0;
         [self didChangeValueForKey:POSBlobInputStreamDataSourceHasBytesAvailableKeyPath];
@@ -212,10 +204,10 @@ typedef NS_ENUM(NSInteger, UpdateCacheMode) {
                 [self p_open];
             } break;
             case UpdateCacheModeFailWhenError: {
-                [self setError:[NSError pos_jpegReadErrorWithPath:_filePath reason:readError]];
+                [self setError:[NSError pos_fileReadErrorWithPath:_filePath reason:readError]];
             } break;
         }
-
+        
     }
 }
 
@@ -226,8 +218,7 @@ typedef NS_ENUM(NSInteger, UpdateCacheMode) {
 
 - (id<Locking>)p_lockForOpening {
     if ([self shouldOpenSynchronously]) {
-        // If you want open stream synchronously you should do that in some worker thread to avoid deadlock.
-        NSParameterAssert(![[NSThread currentThread] isMainThread]);
+        NSParameterAssert(!NSThread.currentThread.isMainThread);
         return [GCDLock new];
     } else {
         return [DummyLock new];

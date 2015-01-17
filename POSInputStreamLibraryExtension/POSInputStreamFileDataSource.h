@@ -1,5 +1,5 @@
 //
-//  POSInputStreamJPEGDataSource.h
+//  POSInputStreamFileDataSource.h
 //  POSInputStreamLibrary
 //
 //  Created by Vlad Mihaylenko on 24/07/14.
@@ -10,10 +10,11 @@
 #import "POSBlobInputStreamDataSource.h"
 
 
-@interface POSInputStreamJPEGDataSource : NSObject <POSBlobInputStreamDataSource>
+@interface POSInputStreamFileDataSource : NSObject <POSBlobInputStreamDataSource>
 
 @property (nonatomic, assign, getter = shouldOpenSynchronously) BOOL openSynchronously;
 
-- (id) initWithFilePath:(NSString*) filePath;
-
+- (instancetype)initWithFilePath:(NSString*) filePath;
+- (instancetype)init UNAVAILABLE_ATTRIBUTE;
++ (instancetype)new UNAVAILABLE_ATTRIBUTE;
 @end

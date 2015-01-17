@@ -10,10 +10,9 @@
 
 @interface NSInputStream (POS)
 
-+ (NSInputStream *) pos_inputStreamWithAssetURL:(NSURL *) assetURL;
-+ (NSInputStream *) pos_inputStreamWithAssetURL:(NSURL *) assetURL asynchronous:(BOOL) asynchronous;
++ (NSInputStream *)pos_inputStreamWithAssetURL:(NSURL *)assetURL;
++ (NSInputStream *)pos_inputStreamWithAssetURL:(NSURL *)assetURL asynchronous:(BOOL)asynchronous;
++ (NSInputStream *)pos_inputStreamForCFNetworkWithAssetURL:(NSURL *)assetURL;
++ (NSInputStream *)pos_inputStreamWithFilePath:(NSString*)filePath;
 
-+ (NSInputStream *) pos_inputStreamForCFNetworkWithAssetURL:(NSURL *) assetURL;
-
-+ (NSInputStream *) pos_inputStreamWithFilePath:(NSString*) filePath;
 @end

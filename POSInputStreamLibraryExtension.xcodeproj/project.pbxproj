@@ -19,7 +19,7 @@
 		B7C620CB1987910E00BA0ADD /* NSInputStream+POS.m in Sources */ = {isa = PBXBuildFile; fileRef = B7C620BF1987910E00BA0ADD /* NSInputStream+POS.m */; };
 		B7C620CC1987910E00BA0ADD /* POSBlobInputStream.m in Sources */ = {isa = PBXBuildFile; fileRef = B7C620C11987910E00BA0ADD /* POSBlobInputStream.m */; };
 		B7C620CD1987910E00BA0ADD /* POSBlobInputStreamAssetDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = B7C620C31987910E00BA0ADD /* POSBlobInputStreamAssetDataSource.m */; };
-		B7C620CE1987910E00BA0ADD /* POSInputStreamJPEGDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = B7C620C61987910E00BA0ADD /* POSInputStreamJPEGDataSource.m */; };
+		B7C620CE1987910E00BA0ADD /* POSInputStreamFileDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = B7C620C61987910E00BA0ADD /* POSInputStreamFileDataSource.m */; };
 		B7C620CF1987910E00BA0ADD /* POSLocking.m in Sources */ = {isa = PBXBuildFile; fileRef = B7C620CA1987910E00BA0ADD /* POSLocking.m */; };
 /* End PBXBuildFile section */
 
@@ -68,8 +68,8 @@
 		B7C620C21987910E00BA0ADD /* POSBlobInputStreamAssetDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = POSBlobInputStreamAssetDataSource.h; sourceTree = "<group>"; };
 		B7C620C31987910E00BA0ADD /* POSBlobInputStreamAssetDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = POSBlobInputStreamAssetDataSource.m; sourceTree = "<group>"; };
 		B7C620C41987910E00BA0ADD /* POSBlobInputStreamDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = POSBlobInputStreamDataSource.h; sourceTree = "<group>"; };
-		B7C620C51987910E00BA0ADD /* POSInputStreamJPEGDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = POSInputStreamJPEGDataSource.h; sourceTree = "<group>"; };
-		B7C620C61987910E00BA0ADD /* POSInputStreamJPEGDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = POSInputStreamJPEGDataSource.m; sourceTree = "<group>"; };
+		B7C620C51987910E00BA0ADD /* POSInputStreamFileDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = POSInputStreamFileDataSource.h; sourceTree = "<group>"; };
+		B7C620C61987910E00BA0ADD /* POSInputStreamFileDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = POSInputStreamFileDataSource.m; sourceTree = "<group>"; };
 		B7C620C71987910E00BA0ADD /* POSInputStreamLibrary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = POSInputStreamLibrary.h; sourceTree = "<group>"; };
 		B7C620C81987910E00BA0ADD /* POSInputStreamLibraryExtension-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "POSInputStreamLibraryExtension-Prefix.pch"; sourceTree = "<group>"; };
 		B7C620C91987910E00BA0ADD /* POSLocking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = POSLocking.h; sourceTree = "<group>"; };
@@ -178,8 +178,8 @@
 				B7C620C21987910E00BA0ADD /* POSBlobInputStreamAssetDataSource.h */,
 				B7C620C31987910E00BA0ADD /* POSBlobInputStreamAssetDataSource.m */,
 				B7C620C41987910E00BA0ADD /* POSBlobInputStreamDataSource.h */,
-				B7C620C51987910E00BA0ADD /* POSInputStreamJPEGDataSource.h */,
-				B7C620C61987910E00BA0ADD /* POSInputStreamJPEGDataSource.m */,
+				B7C620C51987910E00BA0ADD /* POSInputStreamFileDataSource.h */,
+				B7C620C61987910E00BA0ADD /* POSInputStreamFileDataSource.m */,
 				B7C620C71987910E00BA0ADD /* POSInputStreamLibrary.h */,
 				B7C620C81987910E00BA0ADD /* POSInputStreamLibraryExtension-Prefix.pch */,
 				B7C620C91987910E00BA0ADD /* POSLocking.h */,
@@ -276,7 +276,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B7C620CE1987910E00BA0ADD /* POSInputStreamJPEGDataSource.m in Sources */,
+				B7C620CE1987910E00BA0ADD /* POSInputStreamFileDataSource.m in Sources */,
 				219AA0D418C07E77000B68AB /* POSRunLoopRunner.m in Sources */,
 				B7C620CF1987910E00BA0ADD /* POSLocking.m in Sources */,
 				219AA0B318BF78A4000B68AB /* POSInputStreamLibraryTests.m in Sources */,

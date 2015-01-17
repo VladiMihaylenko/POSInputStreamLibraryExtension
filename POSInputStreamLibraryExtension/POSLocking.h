@@ -1,6 +1,6 @@
 //
 //  POSLocking.h
-//  RoundMe
+//  POSInputStreamLibrary
 //
 //  Created by Vlad Mihaylenko on 25/07/14.
 //  Copyright (c) 2014 Vlad Mihaylenko. All rights reserved.
